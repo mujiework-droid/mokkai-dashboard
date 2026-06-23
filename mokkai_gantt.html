@@ -351,12 +351,16 @@ function render() {
     <div class="stat"><div class="stat-label">暫停／滯留</div><div class="stat-val" style="color:var(--red)">${pause}</div></div>
   `;
 
-  // Month axis
+  // Month axis — every month
   const months = [
-    {label:'2025 Q1', date:'2025-01-01'},{label:'4月',date:'2025-04-01'},
-    {label:'7月',date:'2025-07-01'},{label:'10月',date:'2025-10-01'},
-    {label:'2026 Q1',date:'2026-01-01'},{label:'4月',date:'2026-04-01'},
-    {label:'7月',date:'2026-07-01'},{label:'10月',date:'2026-10-01'},
+    {label:'25/1',date:'2025-01-01'},{label:'2',date:'2025-02-01'},{label:'3',date:'2025-03-01'},
+    {label:'4',date:'2025-04-01'},{label:'5',date:'2025-05-01'},{label:'6',date:'2025-06-01'},
+    {label:'7',date:'2025-07-01'},{label:'8',date:'2025-08-01'},{label:'9',date:'2025-09-01'},
+    {label:'10',date:'2025-10-01'},{label:'11',date:'2025-11-01'},{label:'12',date:'2025-12-01'},
+    {label:'26/1',date:'2026-01-01'},{label:'2',date:'2026-02-01'},{label:'3',date:'2026-03-01'},
+    {label:'4',date:'2026-04-01'},{label:'5',date:'2026-05-01'},{label:'6',date:'2026-06-01'},
+    {label:'7',date:'2026-07-01'},{label:'8',date:'2026-08-01'},{label:'9',date:'2026-09-01'},
+    {label:'10',date:'2026-10-01'},{label:'11',date:'2026-11-01'},{label:'12',date:'2026-12-01'},
   ];
   document.getElementById('mlabels').style.width = CHART_W + 'px';
   document.getElementById('mlabels').innerHTML = months.map((m,i) => {
