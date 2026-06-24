@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>木介設計｜平面會議提醒看板</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #f8f9fb;
+    --border: #e4e7ef;
+    --border2: #eef0f6;
+    --accent-red: #d94040;
+    --accent-orange: #d97b20;
+    --accent-green: #1f9e65;
+    --accent-blue: #2e6fd4;
+    --accent-purple: #7c4dca;
+    --accent-gray: #6b7280;
+    --text: #1a1d2e;
+    --text-muted: #6b7280;
+    --text-dim: #a0a8b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo-mark {
+    width: 34px; height: 34px;
+    background: #2e6fd4;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; color: #fff; letter-spacing: -0.5px;
+  }
+  .header-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .header-sub { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .refresh-btn {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .refresh-btn:hover { background: var(--surface2); color: var(--text); border-color: #c8cde0; }
+  .last-update { font-size: 11px; color: var(--text-dim); }
+
+  /* Stats */
+  .summary-bar { display: flex; gap: 12px; padding: 20px 28px 8px; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 150px; flex: 1;
+    border-left: 4px solid transparent;
+  }
+  .stat-card .label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+  .stat-card .value { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-card .hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+  .stat-card.red { border-left-color: var(--accent-red); }
+  .stat-card.red .value { color: var(--accent-red); }
+  .stat-card.orange { border-left-color: var(--accent-orange); }
+  .stat-card.orange .value { color: var(--accent-orange); }
+  .stat-card.blue { border-left-color: var(--accent-blue); }
+  .stat-card.blue .value { color: var(--accent-blue); }
+  .stat-card.green { border-left-color: var(--accent-green); }
+  .stat-card.green .value { color: var(--accent-green); }
+
+  /* Section */
+  .section { padding: 16px 28px; }
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .section-title { font-size: 13px; font-weight: 700; }
+  .section-desc { font-size: 11px; color: var(--text-muted); }
+  .section-count {
+    margin-left: auto;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px; color: var(--text-muted);
+  }
+
+  /* Table */
+  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); min-width: 900px; }
+  thead tr { background: var(--surface2); }
+  thead th {
+    padding: 9px 12px; text-align: left;
+    font-size: 10px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid var(--border2); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8f9fd; }
+  tbody td { padding: 10px 12px; font-size: 12px; vertical-align: middle; }
+  .td-name { font-weight: 600; color: var(--text); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td-muted { color: var(--text-muted); }
+  .td-date { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--text-muted); }
+
+  /* Chips */
+  .chip {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 5px;
+    font-size: 10px; font-weight: 700; white-space: nowrap;
+  }
+  .chip-red { background: #fef0f0; color: var(--accent-red); border: 1px solid #f5c6c6; }
+  .chip-orange { background: #fef4ec; color: var(--accent-orange); border: 1px solid #f5d9b8; }
+  .chip-blue { background: #eef4fd; color: var(--accent-blue); border: 1px solid #bdd1f5; }
+  .chip-green { background: #edf8f3; color: var(--accent-green); border: 1px solid #b3e2ce; }
+  .chip-gray { background: #f3f4f6; color: var(--accent-gray); border: 1px solid #d1d5db; }
+  .chip-purple { background: #f3eefb; color: var(--accent-purple); border: 1px solid #d4bef5; }
+
+  /* Days chip */
+  .days-chip { display: inline-block; padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+  .days-overdue { background: #fef0f0; color: var(--accent-red); border: 1px solid #f5c6c6; }
+  .days-today { background: #fef4ec; color: var(--accent-orange); border: 1px solid #f5d9b8; }
+  .days-soon { background: #eef4fd; color: var(--accent-blue); border: 1px solid #bdd1f5; }
+
+  /* Source tags */
+  .src { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .src-web { background: #eef4fd; color: #1e5cb3; border: 1px solid #bdd1f5; }
+  .src-eddy { background: #fef4ec; color: #b85f10; border: 1px solid #f5d9b8; }
+  .src-intro { background: #edf8f3; color: #166b47; border: 1px solid #b3e2ce; }
+  .src-old { background: #f3eefb; color: #5c35a0; border: 1px solid #d4bef5; }
+  .src-self { background: #fff8ec; color: #9a6200; border: 1px solid #f0d898; }
+  .src-other { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+
+  /* Avatar */
+  .staff-row { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; flex-shrink: 0;
+    border: 1.5px solid #fff;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+  }
+  .av-a { background: #dbeafe; color: #1e4db5; }
+  .av-b { background: #d1fae5; color: #065f46; }
+  .av-c { background: #fde8d8; color: #9a3412; }
+  .av-d { background: #ede9fe; color: #5b21b6; }
+  .av-e { background: #fce7f3; color: #9d174d; }
+  .av-f { background: #fef9c3; color: #854d0e; }
+
+  /* Empty / loading */
+  .empty-state {
+    text-align: center; padding: 32px;
+    color: var(--text-dim); font-size: 13px;
+    background: var(--surface); border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .loading-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .summary-bar { padding: 12px 14px 4px; gap: 8px; }
+    .section { padding: 12px 14px; }
+    .header { padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">木介</div>
+    <div>
+      <div class="header-title">平面會議提醒看板</div>
+      <div class="header-sub">自動從追蹤表讀取 · 每次開啟即更新</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="last-update" id="lastUpdate">載入中…</span>
+    <button class="refresh-btn" onclick="loadData()">↻ 重新整理</button>
+  </div>
+</div>
+
+<div id="appBody">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <div>從 Google Sheets 載入資料中…</div>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '1Slhin4aVs02SN6YdaraPvMRN7rMQW2YcLqrC1UBXeck';
+
+// 台灣 2025–2026 國定假日
+const TW_HOLIDAYS = new Set([
+  '2025-01-01','2025-01-27','2025-01-28','2025-01-29','2025-01-30','2025-01-31',
+  '2025-02-28','2025-04-03','2025-04-04','2025-05-01','2025-06-27','2025-09-03',
+  '2025-10-10',
+  '2026-01-01','2026-01-02','2026-01-28','2026-01-29','2026-01-30','2026-01-31',
+  '2026-02-02','2026-02-03','2026-02-28','2026-04-03','2026-04-04','2026-04-05',
+  '2026-05-01','2026-06-19','2026-09-03','2026-10-09','2026-10-10'
+]);
+
+function isOff(date) {
+  const d = date.getDay();
+  if (d === 0 || d === 6) return true;
+  return TW_HOLIDAYS.has(date.toISOString().slice(0,10));
+}
+
+function addWorkdays(date, n) {
+  let d = new Date(date); let c = 0;
+  while (c < n) { d.setDate(d.getDate()+1); if (!isOff(d)) c++; }
+  return d;
+}
+
+function workdaysBetween(a, b) {
+  let d = new Date(a); let c = 0;
+  const end = new Date(b);
+  if (d >= end) return 0;
+  while (d < end) { d.setDate(d.getDate()+1); if (!isOff(d)) c++; }
+  return c;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function parseGvizDate(v, f) {
+  if (!v && !f) return null;
+  const s = String(v||'');
+  const m = s.match(/Date\((\d+),(\d+),(\d+)/);
+  if (m) return new Date(+m[1], +m[2], +m[3]);
+  const fs = String(f||'').replace(/\//g,'-');
+  const d = new Date(fs);
+  return isNaN(d) ? null : d;
+}
+
+function gvizUrl(sheet) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheet)}`;
+}
+
+async function fetchSheet(sheet) {
+  const res = await fetch(gvizUrl(sheet));
+  const text = await res.text();
+  return JSON.parse(text.replace(/^[^\(]*\(|\);\s*$/gs, ''));
+}
+
+// 顏色輪轉給人員頭像
+const AV_CLASSES = ['av-a','av-b','av-c','av-d','av-e','av-f'];
+const avColorMap = {};
+let avIdx = 0;
+function avClass(name) {
+  if (!name) return 'av-f';
+  if (!avColorMap[name]) { avColorMap[name] = AV_CLASSES[avIdx % AV_CLASSES.length]; avIdx++; }
+  return avColorMap[name];
+}
+
+function staffHtml(names) {
+  if (!names || !names.length) return '<span class="td-muted">—</span>';
+  return `<div class="staff-row">${names.map(n =>
+    `<div class="avatar ${avClass(n)}" title="${n}">${n.slice(0,2)}</div>`
+  ).join('')}</div>`;
+}
+
+function sourceChip(src) {
+  if (!src || src === '—') return '<span class="td-muted">—</span>';
+  const s = String(src).trim();
+  let cls = 'src-other';
+  if (s.includes('網路')) cls = 'src-web';
+  else if (s.includes('Eddy') || s.includes('業務')) cls = 'src-eddy';
+  else if (s.includes('介紹')) cls = 'src-intro';
+  else if (s.includes('前') || s.includes('客變')) cls = 'src-old';
+  else if (s.includes('自地') || s.includes('自建')) cls = 'src-self';
+  return `<span class="src ${cls}">${s}</span>`;
+}
+
+function skip(name) {
+  if (!name) return true;
+  const s = String(name).trim();
+  if (s === '') return true;
+  const skip_kw = ['禁止','案件名稱','未分配','一辦','二辦','三辦','設計師注意',
+    '拚今年','案件預計','業績','報價/工程','←'];
+  return skip_kw.some(k => s.includes(k));
+}
+
+async function loadData() {
+  document.getElementById('appBody').innerHTML =
+    `<div class="loading-state"><div class="spinner"></div><div>從 Google Sheets 載入資料中…</div></div>`;
+
+  try {
+    // 同時拉兩個分頁
+    const [mainJson, measJson] = await Promise.all([
+      fetchSheet('案件評量追蹤表'),
+      fetchSheet('2026丈量分配')
+    ]);
+
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    // ── 解析「2026丈量分配」→ 建立 案件名稱 → {量人員[], 放樣人員[]} 的 map
+    // 從截圖：B=月份序號, C=案件名稱, D=設計師, E=丈量日期, H=文量人員1, I=文量人員2, J=放樣人員, K=平面日
+    // 來源N、業務O 在主表
+    // 先偵測欄標題
+    const mRows = measJson.table.rows;
+    const mCols = measJson.table.cols;
+
+    function mColIdx(kw) {
+      return mCols.findIndex(c => c.label && String(c.label).includes(kw));
+    }
+
+    // 丈量分配表標題列通常在第2列(index=1)，先找「案件名稱」欄
+    const MC = {
+      name:   mColIdx('案件') >= 0 ? mColIdx('案件') : 2,
+      meas1:  mColIdx('文量') >= 0 ? mColIdx('文量') : 7,   // H
+      meas2:  -1,  // 可能 I
+      layout: mColIdx('放樣') >= 0 ? mColIdx('放樣') : 9,   // J
+      plan:   mColIdx('平面') >= 0 ? mColIdx('平面') : 10,  // K
+    };
+    // 嘗試找第2個丈量欄
+    const meas2Idx = mCols.findIndex((c,i) => i > MC.meas1 && c.label && String(c.label).includes('文量'));
+    if (meas2Idx > 0) MC.meas2 = meas2Idx;
+
+    const measMap = {}; // name -> {meas: [], layout: [], plan}
+    mRows.forEach(row => {
+      const cells = row.c || [];
+      const g = (i) => (cells[i] && cells[i].v != null) ? String(cells[i].v).trim() : '';
+      const name = g(MC.name);
+      if (!name || skip(name)) return;
+      const meas = [g(MC.meas1), MC.meas2 >= 0 ? g(MC.meas2) : ''].filter(Boolean);
+      const layout = [g(MC.layout)].filter(Boolean);
+      const planRaw = cells[MC.plan];
+      const plan = planRaw ? parseGvizDate(planRaw.v, planRaw.f) : null;
+      measMap[name] = { meas, layout, plan };
+    });
+
+    // ── 解析主追蹤表
+    // B=1:案件名稱, C=2:執行進度, D=3:設計師(?), E=4:丈量日期, N=13:來源, O=14:業務諮詢
+    // 從 fetch 結果確認：cols 裡 index 0=A,1=B... 但 gviz 可能省略空欄
+    const mainRows = mainJson.table.rows;
+    const mainCols = mainJson.table.cols;
+
+    function mMainIdx(kw) {
+      return mainCols.findIndex(c => c.label && String(c.label).includes(kw));
+    }
+
+    // 用標題比對較可靠；fallback 用固定 index
+    const IC = {
+      name:     mMainIdx('案件名稱') >= 0 ? mMainIdx('案件名稱') : 1,
+      progress: mMainIdx('執行進度') >= 0 ? mMainIdx('執行進度') : 2,
+      designer: mMainIdx('設計師')   >= 0 ? mMainIdx('設計師')   : 3,
+      measure:  mMainIdx('丈量')     >= 0 ? mMainIdx('丈量')     : 4,
+      source:   mMainIdx('來源')     >= 0 ? mMainIdx('來源')     : 13,
+      biz:      mMainIdx('業務')     >= 0 ? mMainIdx('業務')     : 14,
+    };
+    // 「其他備註」也在 N=13，來源/業務可能要從截圖確認—
+    // 從截圖：N欄=來源, O欄=業務諮詢（丈量分配表）
+    // 主追蹤表 N=13=其他備註，O=14 沒有標題
+    // → 來源與業務都在「2026丈量分配」分頁
+    // 重新讀丈量分配的來源(N)、業務(O)
+    const MC2 = {
+      source: mColIdx('來源') >= 0 ? mColIdx('來源') : 13,
+      biz:    mColIdx('業務') >= 0 ? mColIdx('業務') : 14,
+    };
+    // 補充 measMap 的 source / biz
+    mRows.forEach(row => {
+      const cells = row.c || [];
+      const g = (i) => (cells[i] && cells[i].v != null) ? String(cells[i].v).trim() : '';
+      const name = g(MC.name);
+      if (!name || !measMap[name]) return;
+      measMap[name].source = g(MC2.source);
+      measMap[name].biz    = g(MC2.biz);
+    });
+
+    const noDesigner = [], needAlert = [], upcoming = [];
+
+    mainRows.forEach(row => {
+      const cells = row.c || [];
+      const g  = (i) => (cells[i] && cells[i].v != null) ? String(cells[i].v).trim() : '';
+      const gv = (i) => cells[i] ? cells[i].v : null;
+      const gf = (i) => cells[i] ? cells[i].f : null;
+
+      const name     = g(IC.name);
+      if (!name || skip(name)) return;
+
+      const designer = g(IC.designer);
+      const progress = g(IC.progress);
+      const mRaw     = gv(IC.measure);
+      const mFmt     = gf(IC.measure);
+      const measureDate = parseGvizDate(mRaw, mFmt);
+      if (!measureDate) return;
+
+      // 從丈量分配表補資料
+      const extra = measMap[name] || {};
+      const measStaff  = extra.meas   || [];
+      const layoutStaff = extra.layout || [];
+      const source     = extra.source || '';
+      const biz        = extra.biz    || '';
+      // 平面日優先用丈量分配表的
+      const planDate = extra.plan || null;
+      const hasPlan  = planDate && !isNaN(planDate);
+
+      const hasDesigner = designer && designer !== '' && designer !== 'null';
+
+      const alertDate  = addWorkdays(measureDate, 5);
+      const latestDate = addWorkdays(measureDate, 10);
+      const daysOver   = alertDate <= today ? workdaysBetween(alertDate, today) : 0;
+      const daysToAlert = alertDate > today ? workdaysBetween(today, alertDate) : 0;
+
+      const base = { name, designer, progress, measureDate, alertDate, latestDate,
+                     measStaff, layoutStaff, source, biz, daysOver, daysToAlert };
+
+      if (!hasDesigner) {
+        noDesigner.push(base);
+      } else if (!hasPlan && alertDate <= today) {
+        needAlert.push(base);
+      } else if (!hasPlan && alertDate > today && daysToAlert <= 5) {
+        upcoming.push(base);
+      }
+    });
+
+    needAlert.sort((a,b) => b.daysOver - a.daysOver);
+    upcoming.sort((a,b) => a.daysToAlert - b.daysToAlert);
+
+    renderPage(noDesigner, needAlert, upcoming, today);
+    document.getElementById('lastUpdate').textContent =
+      `更新：${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+
+  } catch(e) {
+    document.getElementById('appBody').innerHTML =
+      `<div style="padding:40px 28px;color:#d94040;">
+        ⚠️ 資料載入失敗：${e.message}<br>
+        <small style="color:#9ca3af">請確認試算表已開放「知道連結的人可以檢視」</small>
+       </div>`;
+    console.error(e);
+  }
+}
+
+function overdueDays(n) {
+  return n === 0
+    ? `<span class="days-chip days-overdue">今天到期</span>`
+    : `<span class="days-chip days-overdue">+${n} 工作天</span>`;
+}
+
+function soonDays(n) {
+  return n === 0
+    ? `<span class="days-chip days-today">今天！</span>`
+    : `<span class="days-chip days-soon">還有 ${n} 工作天</span>`;
+}
+
+function tableRows1(rows) {  // 逾期 & 即將（有設計師）
+  return rows.map(r => `<tr>
+    <td class="td-name" title="${r.name}">${r.name}</td>
+    <td><span class="chip chip-blue">${r.designer || '—'}</span></td>
+    <td>${staffHtml(r.measStaff)}</td>
+    <td>${staffHtml(r.layoutStaff)}</td>
+    <td>${sourceChip(r.source)}</td>
+    <td>${r.biz ? `<span class="chip chip-orange">${r.biz}</span>` : '<span class="td-muted">—</span>'}</td>
+    <td class="td-date">${fmtDate(r.measureDate)}</td>
+    <td class="td-date" style="color:${r.daysOver > 0 ? 'var(--accent-red)' : 'var(--accent-orange)'}">
+      ${fmtDate(r.alertDate)}</td>
+    <td class="td-date">${fmtDate(r.latestDate)}</td>
+    <td>${r.daysOver > 0 ? overdueDays(r.daysOver) : soonDays(r.daysToAlert)}</td>
+  </tr>`).join('');
+}
+
+function tableRows2(rows) {  // 未分配設計師
+  return rows.map(r => `<tr>
+    <td class="td-name" title="${r.name}">${r.name}</td>
+    <td>${staffHtml(r.measStaff)}</td>
+    <td>${staffHtml(r.layoutStaff)}</td>
+    <td>${sourceChip(r.source)}</td>
+    <td>${r.biz ? `<span class="chip chip-orange">${r.biz}</span>` : '<span class="td-muted">—</span>'}</td>
+    <td class="td-date">${fmtDate(r.measureDate)}</td>
+    <td class="td-date" style="color:var(--accent-red)">${fmtDate(r.alertDate)}</td>
+    <td class="td-date">${fmtDate(r.latestDate)}</td>
+    <td class="td-muted">${r.progress || '—'}</td>
+  </tr>`).join('');
+}
+
+function renderPage(noDesigner, needAlert, upcoming, today) {
+  const total = noDesigner.length + needAlert.length + upcoming.length;
+  const thead1 = `<thead><tr>
+    <th>案件名稱</th><th>設計師</th><th>丈量人員</th><th>放樣人員</th>
+    <th>來源</th><th>業務諮詢</th><th>丈量日</th>
+    <th>提醒日 +5工</th><th>最晚約 +10工</th><th>狀態</th>
+  </tr></thead>`;
+  const thead2 = `<thead><tr>
+    <th>案件名稱</th><th>丈量人員</th><th>放樣人員</th>
+    <th>來源</th><th>業務諮詢</th><th>丈量日</th>
+    <th>需在此前分配 +5工</th><th>平面會議最晚約 +10工</th><th>執行進度</th>
+  </tr></thead>`;
+
+  document.getElementById('appBody').innerHTML = `
+    <div class="summary-bar">
+      <div class="stat-card red">
+        <div class="label">⚠ 逾期未約</div>
+        <div class="value">${needAlert.length}</div>
+        <div class="hint">已超過丈量後5工作天</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="label">⏰ 即將到期</div>
+        <div class="value">${upcoming.length}</div>
+        <div class="hint">5工作天內需要去約</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="label">👤 未分配設計師</div>
+        <div class="value">${noDesigner.length}</div>
+        <div class="hint">有丈量日但設計師空白</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">📋 待處理合計</div>
+        <div class="value">${total}</div>
+        <div class="hint">今日需要關注的案件</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-dot" style="background:var(--accent-red)"></div>
+        <span class="section-title">逾期未約平面會議</span>
+        <span class="section-desc">已超過丈量後5個工作天，尚未安排平面會議</span>
+        <span class="section-count">${needAlert.length} 件</span>
+      </div>
+      ${needAlert.length === 0
+        ? `<div class="empty-state">✅ 目前沒有逾期案件</div>`
+        : `<div class="tbl-wrap"><table>${thead1}<tbody>${tableRows1(needAlert)}</tbody></table></div>`}
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-dot" style="background:var(--accent-orange)"></div>
+        <span class="section-title">即將需要約平面會議</span>
+        <span class="section-desc">5個工作天內到提醒日，請提早聯繫業主</span>
+        <span class="section-count">${upcoming.length} 件</span>
+      </div>
+      ${upcoming.length === 0
+        ? `<div class="empty-state">👍 目前沒有即將到期案件</div>`
+        : `<div class="tbl-wrap"><table>${thead1}<tbody>${tableRows1(upcoming)}</tbody></table></div>`}
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div class="section-dot" style="background:var(--accent-blue)"></div>
+        <span class="section-title">未分配設計師</span>
+        <span class="section-desc">有丈量日期但設計師欄位空白</span>
+        <span class="section-count">${noDesigner.length} 件</span>
+      </div>
+      ${noDesigner.length === 0
+        ? `<div class="empty-state">✅ 所有案件都已分配設計師</div>`
+        : `<div class="tbl-wrap"><table>${thead2}<tbody>${tableRows2(noDesigner)}</tbody></table></div>`}
+    </div>
+  `;
+}
+
+loadData();
+</script>
+</body>
+</html>
