@@ -6,353 +6,357 @@
 <title>木介設計｜案件時程看板</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --bg2: #f7f6f3;
-    --bg3: #f0ede8;
-    --text: #1a1a18;
-    --text2: #6b6a65;
-    --text3: #9e9d98;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --blue-bg: #e8f2fb;
-    --blue: #185FA5;
-    --blue-bar: #85B7EB;
-    --green-bg: #e4f2e4;
-    --green: #0F6E56;
-    --green-bar: #1D9E75;
-    --green-bar-light: #5DCAA5;
-    --amber-bg: #faeeda;
-    --amber: #854F0B;
-    --red-bg: #fcebeb;
-    --red: #A32D2D;
-    --gray-bg: #f1efe8;
-    --gray: #5F5E5A;
-    --gray-bar: #B4B2A9;
-    --today: #E24B4A;
-    --radius: 8px;
-    --radius-lg: 12px;
+    --bg: #ffffff; --bg2: #f7f6f3; --bg3: #f0ede8;
+    --text: #1a1a18; --text2: #6b6a65; --text3: #9e9d98;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+    --blue-bg: #e8f2fb; --blue: #185FA5; --blue-bar: #85B7EB;
+    --green-bg: #e4f2e4; --green: #0F6E56; --green-bar: #1D9E75; --green-bar-light: #5DCAA5;
+    --amber-bg: #faeeda; --amber: #854F0B;
+    --red-bg: #fcebeb; --red: #A32D2D;
+    --gray-bg: #f1efe8; --gray: #5F5E5A; --gray-bar: #B4B2A9;
+    --today: #E24B4A; --radius: 8px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1c1a;
-      --bg2: #252523;
-      --bg3: #2e2e2b;
-      --text: #f0ede8;
-      --text2: #a8a7a2;
-      --text3: #6b6a65;
-      --border: rgba(255,255,255,0.1);
-      --border2: rgba(255,255,255,0.18);
-      --blue-bg: #0c2a45;
-      --blue: #85B7EB;
-      --green-bg: #0a2e22;
-      --green: #5DCAA5;
-      --amber-bg: #3a2a0a;
-      --amber: #EF9F27;
-      --red-bg: #3a1010;
-      --red: #F09595;
-      --gray-bg: #2a2a28;
-      --gray: #B4B2A9;
+      --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--text:#f0ede8;--text2:#a8a7a2;--text3:#6b6a65;
+      --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);
+      --blue-bg:#0c2a45;--blue:#85B7EB;--green-bg:#0a2e22;--green:#5DCAA5;
+      --amber-bg:#3a2a0a;--amber:#EF9F27;--red-bg:#3a1010;--red:#F09595;--gray-bg:#2a2a28;--gray:#B4B2A9;
     }
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
-
-  /* Header */
-  .header { padding: 1.25rem 1.5rem; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-  .logo { font-size: 16px; font-weight: 500; letter-spacing: 0.02em; }
-  .logo span { color: var(--text2); font-weight: 400; font-size: 13px; margin-left: 8px; }
-  .last-updated { font-size: 11px; color: var(--text3); margin-left: auto; }
-  .refresh-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; display: flex; align-items: center; gap: 4px; }
-  .refresh-btn:hover { background: var(--bg2); }
-
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  .header{padding:1.25rem 1.5rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .logo{font-size:16px;font-weight:500;letter-spacing:.02em}
+  .logo span{color:var(--text2);font-weight:400;font-size:13px;margin-left:8px}
+  .last-updated{font-size:11px;color:var(--text3);margin-left:auto}
+  .refresh-btn{font-size:12px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer}
+  .refresh-btn:hover{background:var(--bg2)}
+  /* Tabs */
+  .tabs{display:flex;gap:0;border-bottom:0.5px solid var(--border2);padding:0 1.5rem}
+  .tab{font-size:13px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);background:transparent;border-top:none;border-left:none;border-right:none}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+  .tab-content{display:none}.tab-content.active{display:block}
   /* Stats */
-  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 1rem 1.5rem; border-bottom: 0.5px solid var(--border); }
-  .stat { background: var(--bg2); border-radius: var(--radius); padding: 10px 14px; }
-  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
-  .stat-val { font-size: 22px; font-weight: 500; }
-
+  .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:1rem 1.5rem;border-bottom:0.5px solid var(--border)}
+  .stat{background:var(--bg2);border-radius:var(--radius);padding:10px 14px}
+  .stat-label{font-size:11px;color:var(--text2);margin-bottom:4px}
+  .stat-val{font-size:22px;font-weight:500}
   /* Controls */
-  .controls { display: flex; align-items: center; gap: 8px; padding: 0.75rem 1.5rem; flex-wrap: wrap; border-bottom: 0.5px solid var(--border); }
-  .filter-btn { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--border2); background: transparent; color: var(--text2); cursor: pointer; white-space: nowrap; }
-  .filter-btn.active { background: var(--blue-bg); color: var(--blue); border-color: transparent; }
-  select.ds-filter { font-size: 12px; padding: 4px 10px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); color: var(--text); cursor: pointer; }
-  .legend { display: flex; gap: 12px; margin-left: auto; flex-wrap: wrap; align-items: center; }
-  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
-  .leg-dot { width: 10px; height: 10px; border-radius: 2px; }
-
+  .controls{display:flex;align-items:center;gap:8px;padding:.75rem 1.5rem;flex-wrap:wrap;border-bottom:0.5px solid var(--border)}
+  .filter-btn{font-size:12px;padding:4px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;white-space:nowrap}
+  .filter-btn.active{background:var(--blue-bg);color:var(--blue);border-color:transparent}
+  select.ds-filter{font-size:12px;padding:4px 10px;border-radius:var(--radius);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer}
+  .legend{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap;align-items:center}
+  .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+  .leg-dot{width:10px;height:10px;border-radius:2px}
   /* Gantt */
-  .gantt-wrap { overflow-x: auto; padding: 0 1.5rem 2rem; }
-  table { border-collapse: collapse; width: max-content; min-width: 100%; }
-  thead th { font-size: 11px; font-weight: 500; color: var(--text2); padding: 6px 8px; border-bottom: 0.5px solid var(--border2); white-space: nowrap; background: var(--bg); position: sticky; top: 0; z-index: 5; }
-  tbody td { padding: 3px 8px; border-bottom: 0.5px solid var(--border); font-size: 12px; color: var(--text); white-space: nowrap; vertical-align: middle; }
-  tbody tr:hover td { background: var(--bg2); }
-  tr.group-row td { background: var(--bg2); font-size: 11px; color: var(--text2); font-weight: 500; padding: 5px 8px; border-bottom: 0.5px solid var(--border2); }
-
-  /* Badge */
-  .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; display: inline-block; font-weight: 500; white-space: nowrap; }
-
-  /* Chart cell */
-  .chart-cell { position: relative; height: 26px; }
-  .bar { position: absolute; top: 5px; height: 16px; border-radius: 3px; cursor: default; }
-  .bar:hover { opacity: 0.8; }
-  .today-line { position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--today); z-index: 4; pointer-events: none; }
-  .month-labels { display: flex; position: relative; height: 20px; }
-  .mlabel { position: absolute; font-size: 10px; color: var(--text3); border-left: 0.5px solid var(--border); padding-left: 3px; line-height: 20px; white-space: nowrap; overflow: hidden; }
-
-  /* Loading / error */
-  .state-msg { text-align: center; padding: 4rem 1.5rem; color: var(--text2); font-size: 14px; }
-  .spinner { width: 24px; height: 24px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 1rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Tooltip */
-  .tip { position: absolute; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 6px 10px; font-size: 11px; color: var(--text); white-space: nowrap; z-index: 100; pointer-events: none; display: none; top: -44px; left: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-
-  @media (max-width: 600px) {
-    .stats { grid-template-columns: repeat(3, 1fr); }
-    .header, .controls, .gantt-wrap { padding-left: 1rem; padding-right: 1rem; }
+  .gantt-wrap{overflow-x:auto;padding:0 1.5rem 2rem}
+  table{border-collapse:collapse;width:max-content;min-width:100%}
+  thead th{font-size:11px;font-weight:500;color:var(--text2);padding:6px 8px;border-bottom:0.5px solid var(--border2);white-space:nowrap;background:var(--bg);position:sticky;top:0;z-index:5}
+  tbody td{padding:3px 8px;border-bottom:0.5px solid var(--border);font-size:12px;color:var(--text);white-space:nowrap;vertical-align:middle}
+  tbody tr:hover td{background:var(--bg2)}
+  tr.group-row td{background:var(--bg2);font-size:11px;color:var(--text2);font-weight:500;padding:5px 8px;border-bottom:0.5px solid var(--border2)}
+  .badge{font-size:10px;padding:2px 7px;border-radius:10px;display:inline-block;font-weight:500;white-space:nowrap}
+  .chart-cell{position:relative;height:26px}
+  .bar{position:absolute;top:5px;height:16px;border-radius:3px;cursor:default}
+  .bar:hover{opacity:.8}
+  .today-line{position:absolute;top:0;bottom:0;width:1.5px;background:var(--today);z-index:4;pointer-events:none}
+  .month-labels{display:flex;position:relative;height:20px}
+  .mlabel{position:absolute;font-size:10px;color:var(--text3);border-left:0.5px solid var(--border);padding-left:3px;line-height:20px;white-space:nowrap;overflow:hidden}
+  .state-msg{text-align:center;padding:4rem 1.5rem;color:var(--text2);font-size:14px}
+  .spinner{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  /* Revenue tab */
+  .rev-wrap{padding:1.5rem}
+  .rev-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem}
+  .rev-card{background:var(--bg2);border-radius:var(--radius);padding:14px 16px}
+  .rev-card-label{font-size:11px;color:var(--text2);margin-bottom:6px}
+  .rev-card-val{font-size:24px;font-weight:500}
+  .rev-card-sub{font-size:11px;color:var(--text3);margin-top:3px}
+  .rev-table{width:100%;border-collapse:collapse;margin-bottom:2rem}
+  .rev-table th{font-size:11px;font-weight:500;color:var(--text2);padding:6px 10px;border-bottom:0.5px solid var(--border2);text-align:left;white-space:nowrap}
+  .rev-table th.num{text-align:right}
+  .rev-table td{padding:6px 10px;border-bottom:0.5px solid var(--border);font-size:12px;vertical-align:middle}
+  .rev-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .rev-table tr:hover td{background:var(--bg2)}
+  .bar-wrap{display:flex;align-items:center;gap:8px}
+  .bar-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;min-width:80px}
+  .bar-fill{height:100%;border-radius:4px;transition:width .3s}
+  .section-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
+  @media(max-width:600px){
+    .stats{grid-template-columns:repeat(3,1fr)}
+    .header,.controls,.gantt-wrap,.rev-wrap{padding-left:1rem;padding-right:1rem}
+    .rev-summary{grid-template-columns:1fr 1fr}
   }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">木介設計<span>案件時程看板</span></div>
+  <div class="logo">木介設計<span>案件管理看板</span></div>
   <div class="last-updated" id="last-updated">載入中…</div>
   <button class="refresh-btn" onclick="loadData()">↻ 重新整理</button>
 </div>
 
-<div class="stats" id="stats">
-  <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
-  <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
-  <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
-  <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
-  <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('gantt',this)">📅 時程甘特圖</button>
+  <button class="tab" onclick="switchTab('revenue',this)">💰 業績看板</button>
 </div>
 
-<div class="controls">
-  <button class="filter-btn active" onclick="setStage('all',this)">全部</button>
-  <button class="filter-btn" onclick="setStage('constr',this)">施工中</button>
-  <button class="filter-btn" onclick="setStage('design',this)">設計中</button>
-  <button class="filter-btn" onclick="setStage('done',this)">已完成</button>
-  <button class="filter-btn" onclick="setStage('pause',this)">暫停／滯留</button>
-  <select class="ds-filter" id="ds-select" onchange="setDesigner(this.value)">
-    <option value="all">所有設計師</option>
-  </select>
-  <div class="legend">
-    <span class="leg"><span class="leg-dot" style="background:var(--blue-bar)"></span>設計期</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--green-bar)"></span>施工期</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--gray-bar)"></span>暫停</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--today);border-radius:50%"></span>今日</span>
+<!-- ══ GANTT TAB ══ -->
+<div id="tab-gantt" class="tab-content active">
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+    <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+    <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+    <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+    <div class="stat"><div class="stat-label">載入中</div><div class="stat-val" style="color:var(--text3)">—</div></div>
+  </div>
+  <div class="controls">
+    <button class="filter-btn active" onclick="setStage('all',this)">全部</button>
+    <button class="filter-btn" onclick="setStage('constr',this)">施工中</button>
+    <button class="filter-btn" onclick="setStage('design',this)">設計中</button>
+    <button class="filter-btn" onclick="setStage('done',this)">已完成</button>
+    <button class="filter-btn" onclick="setStage('pause',this)">暫停／滯留</button>
+    <select class="ds-filter" id="ds-select" onchange="setDesigner(this.value)">
+      <option value="all">所有設計師</option>
+    </select>
+    <div class="legend">
+      <span class="leg"><span class="leg-dot" style="background:var(--blue-bar)"></span>設計期</span>
+      <span class="leg"><span class="leg-dot" style="background:var(--green-bar)"></span>施工期</span>
+      <span class="leg"><span class="leg-dot" style="background:var(--gray-bar)"></span>暫停</span>
+      <span class="leg"><span class="leg-dot" style="background:var(--today);border-radius:50%"></span>今日</span>
+    </div>
+  </div>
+  <div class="gantt-wrap">
+    <div class="state-msg" id="state-msg"><div class="spinner"></div>從 Google Sheets 載入資料中…</div>
+    <table id="gtable" style="display:none">
+      <thead>
+        <tr>
+          <th style="min-width:100px">設計師</th>
+          <th style="min-width:155px">案件名稱</th>
+          <th style="min-width:105px">執行進度</th>
+          <th style="min-width:60px">付款</th>
+          <th style="padding-left:8px"><div class="month-labels" id="mlabels"></div></th>
+        </tr>
+      </thead>
+      <tbody id="gbody"></tbody>
+    </table>
   </div>
 </div>
 
-<div class="gantt-wrap">
-  <div class="state-msg" id="state-msg"><div class="spinner"></div>從 Google Sheets 載入資料中…</div>
-  <table id="gtable" style="display:none">
-    <thead>
-      <tr>
-        <th style="min-width:100px">設計師</th>
-        <th style="min-width:155px">案件名稱</th>
-        <th style="min-width:105px">執行進度</th>
-        <th style="min-width:60px">付款</th>
-        <th style="padding-left:8px">
-          <div class="month-labels" id="mlabels"></div>
-        </th>
-      </tr>
-    </thead>
-    <tbody id="gbody"></tbody>
-  </table>
+<!-- ══ REVENUE TAB ══ -->
+<div id="tab-revenue" class="tab-content">
+  <div class="rev-wrap">
+    <div class="state-msg" id="rev-state-msg" style="display:none"><div class="spinner"></div>計算中…</div>
+    <div id="rev-content" style="display:none">
+      <div class="rev-summary" id="rev-summary"></div>
+      <div class="section-title">各設計師業績明細</div>
+      <table class="rev-table" id="rev-table">
+        <thead>
+          <tr>
+            <th>設計師</th>
+            <th class="num">設計費小計</th>
+            <th class="num">工程金額</th>
+            <th class="num">工程利潤</th>
+            <th class="num">業績合計</th>
+            <th style="min-width:160px">業績佔比</th>
+            <th class="num">案件數</th>
+          </tr>
+        </thead>
+        <tbody id="rev-tbody"></tbody>
+      </table>
+      <div class="section-title">公司整體業績圖表</div>
+      <canvas id="rev-chart" style="max-height:320px;margin-bottom:2rem"></canvas>
+    </div>
+  </div>
 </div>
 
 <script>
 const SHEET_ID = '1Slhin4aVs02SN6YdaraPvMRN7rMQW2YcLqrC1UBXeck';
 const CHART_W = 700;
 const START = new Date('2025-01-01');
-const END = new Date('2026-12-31');
+const END   = new Date('2026-12-31');
 const TOTAL_MS = END - START;
 const TODAY = new Date();
 
 /* ── helpers ── */
-function px(dateStr) {
-  if (!dateStr) return 0;
-  const d = new Date(dateStr);
-  if (isNaN(d)) return 0;
-  return Math.max(0, Math.min(CHART_W, ((d - START) / TOTAL_MS) * CHART_W));
+function px(dateStr){
+  if(!dateStr) return 0;
+  const d=new Date(dateStr);
+  if(isNaN(d)) return 0;
+  return Math.max(0,Math.min(CHART_W,((d-START)/TOTAL_MS)*CHART_W));
 }
-function todayPx() { return ((TODAY - START) / TOTAL_MS) * CHART_W; }
+function todayPx(){return((TODAY-START)/TOTAL_MS)*CHART_W}
 
-function parseDate(s) {
-  if (!s || s === 'X' || s === '-' || s === '去年') return null;
-  s = s.trim().replace(/\//g, '-');
-  // handle formats like 2026-1-2 → 2026-01-02
-  const parts = s.split('-');
-  if (parts.length === 3) {
-    return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
-  }
+function parseDate(s){
+  if(!s||s==='X'||s==='-'||s==='去年') return null;
+  s=s.trim().replace(/\//g,'-');
+  const p=s.split('-');
+  if(p.length===3) return `${p[0]}-${p[1].padStart(2,'0')}-${p[2].padStart(2,'0')}`;
   return null;
 }
 
-function stageType(p) {
-  if (!p) return 'none';
-  if (p.includes('暫停')) return 'pause';
-  if (p.includes('工程3') || p.includes('已完成') || p.includes('設計完成')) return 'done';
-  if (p.includes('工程') || p.includes('點交')) return 'constr';
+function parseMoney(s){
+  if(!s) return 0;
+  const str=s.toString().replace(/,/g,'').replace(/[^0-9.]/g,'');
+  const n=parseFloat(str);
+  return isNaN(n)?0:n;
+}
+
+function fmtMoney(n){
+  if(n===0) return '—';
+  if(n>=10000000) return (n/10000000).toFixed(1)+'千萬';
+  if(n>=1000000)  return (n/1000000).toFixed(1)+'百萬';
+  if(n>=10000)    return (n/10000).toFixed(1)+'萬';
+  return n.toLocaleString();
+}
+
+function stageType(p){
+  if(!p) return 'none';
+  if(p.includes('暫停')) return 'pause';
+  if(p.includes('工程3')||p.includes('已完成')||p.includes('設計完成')) return 'done';
+  if(p.includes('工程')||p.includes('點交')) return 'constr';
   return 'design';
 }
 
-function stageBadge(p) {
-  if (!p) return '<span class="badge" style="background:var(--gray-bg);color:var(--gray)">—</span>';
-  const t = stageType(p);
-  const cfg = {
-    pause: 'background:var(--gray-bg);color:var(--gray)',
-    done:  'background:var(--green-bg);color:var(--green)',
-    constr:'background:var(--green-bg);color:var(--green)',
-    design:'background:var(--blue-bg);color:var(--blue)',
-    none:  'background:var(--gray-bg);color:var(--gray)',
-  };
-  const label = p.length > 10 ? p.slice(0, 10) + '…' : p;
+function stageBadge(p){
+  if(!p) return '<span class="badge" style="background:var(--gray-bg);color:var(--gray)">—</span>';
+  const t=stageType(p);
+  const cfg={pause:'background:var(--gray-bg);color:var(--gray)',done:'background:var(--green-bg);color:var(--green)',constr:'background:var(--green-bg);color:var(--green)',design:'background:var(--blue-bg);color:var(--blue)',none:'background:var(--gray-bg);color:var(--gray)'};
+  const label=p.length>10?p.slice(0,10)+'…':p;
   return `<span class="badge" style="${cfg[t]}" title="${p}">${label}</span>`;
 }
 
-function payBadge(pay) {
-  if (!pay) return '';
-  if (pay.includes('已結清') || pay.includes('已付清')) return `<span class="badge" style="background:var(--green-bg);color:var(--green)">結清</span>`;
-  if (pay.includes('未付款')) return `<span class="badge" style="background:var(--red-bg);color:var(--red)">未付</span>`;
-  if (pay.includes('3期')) return `<span class="badge" style="background:var(--blue-bg);color:var(--blue)">3期</span>`;
-  if (pay.includes('2期')) return `<span class="badge" style="background:var(--blue-bg);color:var(--blue)">2期</span>`;
-  if (pay.includes('1期')) return `<span class="badge" style="background:var(--amber-bg);color:var(--amber)">1期</span>`;
+function payBadge(pay){
+  if(!pay) return '';
+  if(pay.includes('已結清')||pay.includes('已付清')) return `<span class="badge" style="background:var(--green-bg);color:var(--green)">結清</span>`;
+  if(pay.includes('未付款')) return `<span class="badge" style="background:var(--red-bg);color:var(--red)">未付</span>`;
+  if(pay.includes('3期')) return `<span class="badge" style="background:var(--blue-bg);color:var(--blue)">3期</span>`;
+  if(pay.includes('2期')) return `<span class="badge" style="background:var(--blue-bg);color:var(--blue)">2期</span>`;
+  if(pay.includes('1期')) return `<span class="badge" style="background:var(--amber-bg);color:var(--amber)">1期</span>`;
   return '';
 }
 
-function buildBars(c) {
-  const t = stageType(c.stage);
-  const tp = todayPx();
-  let html = `<div class="today-line" style="left:${tp.toFixed(1)}px"></div>`;
-  if (t === 'pause') {
-    if (c.measure) html += `<div class="bar" style="left:${px(c.measure)}px;width:10px;background:var(--gray-bar);border-radius:50%" title="丈量：${c.measure}"></div>`;
+function buildBars(c){
+  const t=stageType(c.stage);
+  const tp=todayPx();
+  let html=`<div class="today-line" style="left:${tp.toFixed(1)}px"></div>`;
+  if(t==='pause'){
+    if(c.measure) html+=`<div class="bar" style="left:${px(c.measure)}px;width:10px;background:var(--gray-bar);border-radius:50%"></div>`;
     return html;
   }
-  if (c.design_s) {
-    const ds = px(c.design_s);
-    const de = c.design_e ? px(c.design_e) : (t === 'done' ? px(c.design_e) : tp);
-    const dw = Math.max(4, de - ds);
-    html += `<div class="bar" style="left:${ds.toFixed(1)}px;width:${dw.toFixed(1)}px;background:var(--blue-bar)" title="設計：${c.design_s} ～ ${c.design_e || '進行中'}"></div>`;
+  if(c.design_s){
+    const ds=px(c.design_s),de=c.design_e?px(c.design_e):tp,dw=Math.max(4,de-ds);
+    html+=`<div class="bar" style="left:${ds.toFixed(1)}px;width:${dw.toFixed(1)}px;background:var(--blue-bar)" title="設計：${c.design_s}～${c.design_e||'進行中'}"></div>`;
   }
-  if (c.constr_s) {
-    const cs = px(c.constr_s);
-    const ce = c.constr_e ? px(c.constr_e) : tp;
-    const cw = Math.max(4, ce - cs);
-    const col = t === 'done' ? 'var(--green-bar)' : 'var(--green-bar-light)';
-    html += `<div class="bar" style="left:${cs.toFixed(1)}px;width:${cw.toFixed(1)}px;background:${col}" title="施工：${c.constr_s} ～ ${c.constr_e || '進行中'}"></div>`;
+  if(c.constr_s){
+    const cs=px(c.constr_s),ce=c.constr_e?px(c.constr_e):tp,cw=Math.max(4,ce-cs);
+    const col=t==='done'?'var(--green-bar)':'var(--green-bar-light)';
+    html+=`<div class="bar" style="left:${cs.toFixed(1)}px;width:${cw.toFixed(1)}px;background:${col}" title="施工：${c.constr_s}～${c.constr_e||'進行中'}"></div>`;
   }
-  if (c.measure && !c.design_s) {
-    html += `<div class="bar" style="left:${px(c.measure)}px;width:8px;background:var(--blue-bar);border-radius:50%" title="丈量：${c.measure}"></div>`;
-  }
+  if(c.measure&&!c.design_s) html+=`<div class="bar" style="left:${px(c.measure)}px;width:8px;background:var(--blue-bar);border-radius:50%"></div>`;
   return html;
 }
 
-/* ── Sheets parsing ── */
-// Column mapping (0-indexed): A=0 B=1 C=2 D=3 E=4 F=5 G=6 H=7 I=8
-// A: 編號, B: 案件名稱, C: 執行進度, D: 付款階段,
-// E: 丈量日期, F: 設計簽約日期, G: 工程簽約日期, H: 開工日期, I: 簽約完工日期
+/* ── Designer names ── */
+const DESIGNER_NAMES=['陳鈺恩','林品妤','吳珮瑄','陳珮㚬','王婞蓉','李逸瑋','蔡旻倩','鄭晴','童詩涵','劉柔湞','劉懿慧','劉捷','陳心瑜','張佳伃','YUEN','Nora','Peggy','Penny','Effy','Alice','Tracy','Lincy','Ada','Doris','Ellen','Jack','Hsin','Jewel'];
 
-const DESIGNER_NAMES = [
-  '陳鈺恩','林品妤','吳珮瑄','陳珮㚬','王婞蓉','李逸瑋','蔡旻倩','鄭晴',
-  '童詩涵','劉柔湞','劉懿慧','劉捷','陳心瑜','張佳伃',
-  'YUEN','Nora','Peggy','Penny','Effy','Alice','Tracy','Lincy',
-  'Ada','Doris','Ellen','Jack','Hsin','Jewel'
-];
-
-function isDesignerRow(row) {
-  const b = (row[1] || '').toString().trim();
-  return DESIGNER_NAMES.some(n => b.includes(n));
+function isDesignerRow(row){
+  const b=(row[1]||'').toString().trim();
+  return DESIGNER_NAMES.some(n=>b.includes(n));
 }
 
-function parseRows(values) {
-  const cases = [];
-  let currentDesigner = '';
+function parseRows(values){
+  const cases=[];
+  let currentDesigner='';
+  let currentDesignerRevRow=null;
 
-  for (let i = 0; i < values.length; i++) {
-    const row = values[i];
-    const a = (row[0] || '').toString().trim();
-    const b = (row[1] || '').toString().trim();
-    const c = (row[2] || '').toString().trim();
-    const d = (row[3] || '').toString().trim();
-
-    if (!b) continue;
-
-    // 辦公室分組 header (一辦/二辦)
-    if ((b === '' || !row[2]) && (a === '一辦' || a === '二辦')) continue;
-
-    // Designer header row — detect by name keywords
-    if (isDesignerRow(row) && !a.match(/^\d+$/)) {
-      currentDesigner = b;
+  for(let i=0;i<values.length;i++){
+    const row=values[i];
+    const a=(row[0]||'').toString().trim();
+    const b=(row[1]||'').toString().trim();
+    const c=(row[2]||'').toString().trim();
+    const d=(row[3]||'').toString().trim();
+    if(!b) continue;
+    if((a==='一辦'||a==='二辦')&&!row[2]) continue;
+    if(isDesignerRow(row)&&!a.match(/^\d+$/)){
+      currentDesigner=b;
+      // store revenue totals from designer header row (col J=設計費, K=工程金額, L=利潤)
+      currentDesignerRevRow={
+        designer:b,
+        design_fee: parseMoney((row[9]||'').toString()),
+        constr_amt:  parseMoney((row[10]||'').toString()),
+        profit:      parseMoney((row[11]||'').toString()),
+      };
       continue;
     }
-
-    // Case row — must have numeric index or non-empty stage
-    const hasIndex = /^\d+$/.test(a);
-    const hasStage = c && c.length > 0;
-    if (!b || b.includes('未分配') || b.includes('拚今年') || b.includes('案件預計')) continue;
-    if (!hasIndex && !hasStage) continue;
-    if (!currentDesigner) continue;
-
+    const hasIndex=/^\d+$/.test(a);
+    const hasStage=c&&c.length>0;
+    if(!b||b.includes('未分配')||b.includes('拚今年')||b.includes('案件預計')) continue;
+    if(!hasIndex&&!hasStage) continue;
+    if(!currentDesigner) continue;
     cases.push({
-      designer: currentDesigner,
-      name: b,
-      stage: c || '',
-      pay: d || '',
-      measure:   parseDate((row[4] || '').toString()),
-      design_s:  parseDate((row[5] || '').toString()),
-      design_e:  parseDate((row[6] || '').toString()),
-      constr_s:  parseDate((row[7] || '').toString()),
-      constr_e:  parseDate((row[8] || '').toString()),
+      designer:currentDesigner,
+      name:b, stage:c||'', pay:d||'',
+      measure:  parseDate((row[4]||'').toString()),
+      design_s: parseDate((row[5]||'').toString()),
+      design_e: parseDate((row[6]||'').toString()),
+      constr_s: parseDate((row[7]||'').toString()),
+      constr_e: parseDate((row[8]||'').toString()),
+      design_fee: parseMoney((row[9]||'').toString()),
+      constr_amt:  parseMoney((row[10]||'').toString()),
+      profit:      parseMoney((row[11]||'').toString()),
+      _dsRevRow: currentDesignerRevRow,
     });
   }
   return cases;
 }
 
 /* ── State ── */
-let allCases = [];
-let activeStage = 'all';
-let activeDesigner = 'all';
+let allCases=[];
+let activeStage='all', activeDesigner='all';
+let currentTab='gantt';
+let chartInstance=null;
 
-function setStage(s, el) {
-  activeStage = s;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  render();
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='revenue'&&allCases.length) renderRevenue();
 }
-function setDesigner(v) { activeDesigner = v; render(); }
 
-/* ── Render ── */
-function render() {
-  const filtered = allCases.filter(c => {
-    const t = stageType(c.stage);
-    if (activeDesigner !== 'all' && !c.designer.includes(activeDesigner)) return false;
-    if (activeStage === 'constr') return t === 'constr';
-    if (activeStage === 'design') return t === 'design';
-    if (activeStage === 'done')   return t === 'done';
-    if (activeStage === 'pause')  return t === 'pause';
+function setStage(s,el){
+  activeStage=s;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderGantt();
+}
+function setDesigner(v){activeDesigner=v;renderGantt();}
+
+/* ── Render Gantt ── */
+function renderGantt(){
+  const filtered=allCases.filter(c=>{
+    const t=stageType(c.stage);
+    if(activeDesigner!=='all'&&!c.designer.includes(activeDesigner)) return false;
+    if(activeStage==='constr') return t==='constr';
+    if(activeStage==='design') return t==='design';
+    if(activeStage==='done')   return t==='done';
+    if(activeStage==='pause')  return t==='pause';
     return true;
   });
-
-  // Stats
-  const total   = allCases.length;
-  const constr  = allCases.filter(c => stageType(c.stage) === 'constr').length;
-  const design  = allCases.filter(c => stageType(c.stage) === 'design').length;
-  const done    = allCases.filter(c => stageType(c.stage) === 'done').length;
-  const pause   = allCases.filter(c => stageType(c.stage) === 'pause').length;
-  document.getElementById('stats').innerHTML = `
+  const total=allCases.length,constr=allCases.filter(c=>stageType(c.stage)==='constr').length,design=allCases.filter(c=>stageType(c.stage)==='design').length,done=allCases.filter(c=>stageType(c.stage)==='done').length,pause=allCases.filter(c=>stageType(c.stage)==='pause').length;
+  document.getElementById('stats').innerHTML=`
     <div class="stat"><div class="stat-label">總案件數</div><div class="stat-val">${total}</div></div>
     <div class="stat"><div class="stat-label">施工中</div><div class="stat-val" style="color:var(--green)">${constr}</div></div>
     <div class="stat"><div class="stat-label">設計中</div><div class="stat-val" style="color:var(--blue)">${design}</div></div>
     <div class="stat"><div class="stat-label">已完成</div><div class="stat-val" style="color:var(--green-bar)">${done}</div></div>
-    <div class="stat"><div class="stat-label">暫停／滯留</div><div class="stat-val" style="color:var(--red)">${pause}</div></div>
-  `;
+    <div class="stat"><div class="stat-label">暫停／滯留</div><div class="stat-val" style="color:var(--red)">${pause}</div></div>`;
 
-  // Month axis — every month
-  const months = [
+  const months=[
     {label:'25/1',date:'2025-01-01'},{label:'2',date:'2025-02-01'},{label:'3',date:'2025-03-01'},
     {label:'4',date:'2025-04-01'},{label:'5',date:'2025-05-01'},{label:'6',date:'2025-06-01'},
     {label:'7',date:'2025-07-01'},{label:'8',date:'2025-08-01'},{label:'9',date:'2025-09-01'},
@@ -362,82 +366,136 @@ function render() {
     {label:'7',date:'2026-07-01'},{label:'8',date:'2026-08-01'},{label:'9',date:'2026-09-01'},
     {label:'10',date:'2026-10-01'},{label:'11',date:'2026-11-01'},{label:'12',date:'2026-12-01'},
   ];
-  document.getElementById('mlabels').style.width = CHART_W + 'px';
-  document.getElementById('mlabels').innerHTML = months.map((m,i) => {
-    const x = px(m.date);
-    const nextX = i < months.length-1 ? px(months[i+1].date) : CHART_W;
-    return `<span class="mlabel" style="left:${x.toFixed(1)}px;width:${(nextX-x).toFixed(1)}px">${m.label}</span>`;
+  document.getElementById('mlabels').style.width=CHART_W+'px';
+  document.getElementById('mlabels').innerHTML=months.map((m,i)=>{
+    const x=px(m.date),nx=i<months.length-1?px(months[i+1].date):CHART_W;
+    return `<span class="mlabel" style="left:${x.toFixed(1)}px;width:${(nx-x).toFixed(1)}px">${m.label}</span>`;
   }).join('');
 
-  // Rows
-  let lastDesigner = '';
-  let html = '';
-  filtered.forEach(c => {
-    if (activeDesigner === 'all' && c.designer !== lastDesigner) {
-      lastDesigner = c.designer;
-      html += `<tr class="group-row"><td colspan="5">${c.designer}</td></tr>`;
+  let lastDesigner='',html='';
+  filtered.forEach(c=>{
+    if(activeDesigner==='all'&&c.designer!==lastDesigner){
+      lastDesigner=c.designer;
+      html+=`<tr class="group-row"><td colspan="5">${c.designer}</td></tr>`;
     }
-    html += `<tr>
-      <td style="font-size:11px;color:var(--text3)">${activeDesigner === 'all' ? '' : c.designer}</td>
+    html+=`<tr>
+      <td style="font-size:11px;color:var(--text3)">${activeDesigner==='all'?'':c.designer}</td>
       <td style="max-width:153px;overflow:hidden;text-overflow:ellipsis" title="${c.name}">${c.name}</td>
       <td>${stageBadge(c.stage)}</td>
       <td>${payBadge(c.pay)}</td>
-      <td style="padding-left:8px">
-        <div class="chart-cell" style="width:${CHART_W}px">${buildBars(c)}</div>
-      </td>
+      <td style="padding-left:8px"><div class="chart-cell" style="width:${CHART_W}px">${buildBars(c)}</div></td>
     </tr>`;
   });
+  if(!html) html=`<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--text3)">沒有符合條件的案件</td></tr>`;
+  document.getElementById('gbody').innerHTML=html;
+}
 
-  if (!html) html = `<tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--text3)">沒有符合條件的案件</td></tr>`;
-  document.getElementById('gbody').innerHTML = html;
+/* ── Render Revenue ── */
+function renderRevenue(){
+  document.getElementById('rev-content').style.display='';
+
+  // Group by designer using the header row totals
+  const dsMap={};
+  allCases.forEach(c=>{
+    if(!dsMap[c.designer]){
+      dsMap[c.designer]={
+        designer:c.designer,
+        design_fee: c._dsRevRow? c._dsRevRow.design_fee: 0,
+        constr_amt:  c._dsRevRow? c._dsRevRow.constr_amt:  0,
+        profit:      c._dsRevRow? c._dsRevRow.profit:      0,
+        count:0
+      };
+    }
+    dsMap[c.designer].count++;
+  });
+
+  const rows=Object.values(dsMap).sort((a,b)=>(b.design_fee+b.profit)-(a.design_fee+a.profit));
+  const totalDesignFee=rows.reduce((s,r)=>s+r.design_fee,0);
+  const totalConstr=rows.reduce((s,r)=>s+r.constr_amt,0);
+  const totalProfit=rows.reduce((s,r)=>s+r.profit,0);
+  const grandTotal=totalDesignFee+totalProfit;
+  const maxTotal=Math.max(...rows.map(r=>r.design_fee+r.profit));
+
+  // Summary cards
+  document.getElementById('rev-summary').innerHTML=`
+    <div class="rev-card"><div class="rev-card-label">設計費總計</div><div class="rev-card-val" style="color:var(--blue)">${fmtMoney(totalDesignFee)}</div><div class="rev-card-sub">${totalDesignFee.toLocaleString()} 元</div></div>
+    <div class="rev-card"><div class="rev-card-label">工程利潤總計</div><div class="rev-card-val" style="color:var(--green)">${fmtMoney(totalProfit)}</div><div class="rev-card-sub">工程金額 ${fmtMoney(totalConstr)}</div></div>
+    <div class="rev-card"><div class="rev-card-label">公司業績合計</div><div class="rev-card-val">${fmtMoney(grandTotal)}</div><div class="rev-card-sub">${allCases.length} 件案子</div></div>`;
+
+  // Table
+  const COLORS=['#85B7EB','#1D9E75','#EF9F27','#E24B4A','#9B6FD4','#5DCAA5','#F0A060','#60A0F0','#A0D060','#E06090','#70C0C0','#C09050','#8090E0','#D06060'];
+  document.getElementById('rev-tbody').innerHTML=rows.map((r,i)=>{
+    const total=r.design_fee+r.profit;
+    const pct=maxTotal>0?Math.round((total/maxTotal)*100):0;
+    const color=COLORS[i%COLORS.length];
+    return `<tr>
+      <td style="font-weight:500">${r.designer}</td>
+      <td class="num">${fmtMoney(r.design_fee)}</td>
+      <td class="num" style="color:var(--text2)">${fmtMoney(r.constr_amt)}</td>
+      <td class="num" style="color:var(--green)">${fmtMoney(r.profit)}</td>
+      <td class="num" style="font-weight:500">${fmtMoney(total)}</td>
+      <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><span style="font-size:11px;color:var(--text2);width:32px;text-align:right">${grandTotal>0?Math.round((total/grandTotal)*100):0}%</span></div></td>
+      <td class="num" style="color:var(--text2)">${r.count}</td>
+    </tr>`;
+  }).join('');
+
+  // Chart
+  if(chartInstance) chartInstance.destroy();
+  const ctx=document.getElementById('rev-chart').getContext('2d');
+  chartInstance=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:rows.map(r=>r.designer.split(' ')[0]),
+      datasets:[
+        {label:'設計費',data:rows.map(r=>r.design_fee),backgroundColor:'#85B7EB',borderRadius:4},
+        {label:'工程利潤',data:rows.map(r=>r.profit),backgroundColor:'#1D9E75',borderRadius:4},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'top'},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmtMoney(ctx.raw)}`}}},
+      scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>fmtMoney(v)},grid:{color:'rgba(0,0,0,0.05)'}}}
+    }
+  });
 }
 
 /* ── Load from Sheets ── */
-async function loadData() {
-  document.getElementById('state-msg').style.display = 'block';
-  document.getElementById('state-msg').innerHTML = '<div class="spinner"></div>從 Google Sheets 載入資料中…';
-  document.getElementById('gtable').style.display = 'none';
+async function loadData(){
+  document.getElementById('state-msg').style.display='block';
+  document.getElementById('state-msg').innerHTML='<div class="spinner"></div>從 Google Sheets 載入資料中…';
+  document.getElementById('gtable').style.display='none';
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=案件評量追蹤表`;
+  try{
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const text=await res.text();
+    const json=JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+    const rows=json.table.rows;
+    const values=rows.map(r=>r.c?r.c.map(cell=>cell?(cell.f||cell.v||''):''):[]);
+    allCases=parseRows(values);
 
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=案件評量追蹤表`;
+    const designers=[...new Set(allCases.map(c=>c.designer))];
+    const sel=document.getElementById('ds-select');
+    sel.innerHTML='<option value="all">所有設計師</option>';
+    designers.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o);});
 
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-
-    // Google wraps response: google.visualization.Query.setResponse({...})
-    const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
-    const rows = json.table.rows;
-    const values = rows.map(r => r.c ? r.c.map(cell => cell ? (cell.f || cell.v || '') : '') : []);
-
-    allCases = parseRows(values);
-
-    // Populate designer dropdown
-    const designers = [...new Set(allCases.map(c => c.designer))];
-    const sel = document.getElementById('ds-select');
-    sel.innerHTML = '<option value="all">所有設計師</option>';
-    designers.forEach(d => {
-      const o = document.createElement('option');
-      o.value = d; o.textContent = d;
-      sel.appendChild(o);
-    });
-
-    document.getElementById('last-updated').textContent = '更新時間：' + new Date().toLocaleString('zh-TW', {hour12:false});
-    document.getElementById('state-msg').style.display = 'none';
-    document.getElementById('gtable').style.display = '';
-    render();
-
-  } catch(err) {
-    document.getElementById('state-msg').innerHTML = `
+    document.getElementById('last-updated').textContent='更新時間：'+new Date().toLocaleString('zh-TW',{hour12:false});
+    document.getElementById('state-msg').style.display='none';
+    document.getElementById('gtable').style.display='';
+    renderGantt();
+    if(currentTab==='revenue') renderRevenue();
+  }catch(err){
+    document.getElementById('state-msg').innerHTML=`
       <div style="color:var(--red)">⚠ 無法載入資料</div>
       <div style="font-size:12px;margin-top:8px;color:var(--text2)">${err.message}</div>
       <div style="font-size:12px;margin-top:4px;color:var(--text3)">請確認 Google Sheets 分享設定為「知道連結的人可以檢視」</div>
-      <button class="refresh-btn" style="margin:1rem auto 0;display:block" onclick="loadData()">↻ 重試</button>
-    `;
+      <button class="refresh-btn" style="margin:1rem auto 0;display:block" onclick="loadData()">↻ 重試</button>`;
   }
 }
 
 loadData();
 </script>
+<!-- Chart.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </body>
 </html>
