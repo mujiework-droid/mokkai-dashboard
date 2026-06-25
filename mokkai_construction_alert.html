@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>木介設計｜工程進度警報</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.09);
+    --border-mid: rgba(0,0,0,0.15);
+    --text: #1a1a18;
+    --text-2: #6b6a64;
+    --text-3: #a09f98;
+    --red-bg: #FCEBEB;
+    --red-text: #A32D2D;
+    --red-border: #F09595;
+    --amber-bg: #FAEEDA;
+    --amber-text: #854F0B;
+    --amber-border: #EF9F27;
+    --green-bg: #EAF3DE;
+    --green-text: #3B6D11;
+    --green-border: #97C459;
+    --blue-bg: #E6F1FB;
+    --blue-text: #185FA5;
+    --blue-border: #85B7EB;
+    --gray-bg: #F1EFE8;
+    --gray-text: #5F5E5A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+  header {
+    background: var(--surface);
+    border-bottom: 0.5px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-2); }
+  .page-title { font-size: 15px; font-weight: 500; }
+  .meta { font-size: 11px; color: var(--text-3); }
+  .refresh-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text-2);
+    background: none; border: 0.5px solid var(--border-mid);
+    border-radius: 6px; padding: 5px 10px; cursor: pointer;
+    transition: background .15s;
+  }
+  .refresh-btn:hover { background: var(--gray-bg); }
+  main { max-width: 960px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border-radius: 10px;
+    border: 0.5px solid var(--border);
+    padding: 14px 16px;
+  }
+  .summary-card.red { border-color: var(--red-border); background: var(--red-bg); }
+  .summary-card.amber { border-color: var(--amber-border); background: var(--amber-bg); }
+  .summary-label { font-size: 11px; color: var(--text-2); margin-bottom: 6px; line-height: 1.4; }
+  .summary-card.red .summary-label { color: var(--red-text); opacity: .8; }
+  .summary-card.amber .summary-label { color: var(--amber-text); opacity: .8; }
+  .summary-num { font-size: 28px; font-weight: 500; color: var(--text); }
+  .summary-card.red .summary-num { color: var(--red-text); }
+  .summary-card.amber .summary-num { color: var(--amber-text); }
+  .summary-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .summary-card.red .summary-sub { color: var(--red-text); opacity: .6; }
+  .summary-card.amber .summary-sub { color: var(--amber-text); opacity: .6; }
+
+  .section { margin-bottom: 28px; }
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px;
+  }
+  .section-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .section-dot.red { background: #E24B4A; }
+  .section-dot.amber { background: #BA7517; }
+  .section-dot.green { background: #639922; }
+  .section-dot.blue { background: #378ADD; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .section-count {
+    font-size: 11px; color: var(--text-3);
+    background: var(--gray-bg); border-radius: 20px;
+    padding: 1px 8px;
+  }
+
+  .card-list { display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+    align-items: start;
+  }
+  .card.red { border-left: 3px solid #E24B4A; border-radius: 0 10px 10px 0; }
+  .card.amber { border-left: 3px solid #BA7517; border-radius: 0 10px 10px 0; }
+  .card-name { font-size: 14px; font-weight: 500; }
+  .card-meta { font-size: 12px; color: var(--text-2); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .card-meta span { display: flex; align-items: center; gap: 3px; }
+  .card-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .badge {
+    display: inline-block; padding: 2px 9px;
+    border-radius: 20px; font-size: 11px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge.red { background: var(--red-bg); color: var(--red-text); }
+  .badge.amber { background: var(--amber-bg); color: var(--amber-text); }
+  .badge.green { background: var(--green-bg); color: var(--green-text); }
+  .badge.blue { background: var(--blue-bg); color: var(--blue-text); }
+  .badge.gray { background: var(--gray-bg); color: var(--gray-text); }
+  .day-count { font-size: 20px; font-weight: 500; }
+  .day-count.red { color: var(--red-text); }
+  .day-count.amber { color: var(--amber-text); }
+  .day-label { font-size: 10px; color: var(--text-3); }
+
+  .progress-bar-wrap {
+    grid-column: 1 / -1;
+    height: 5px; background: var(--bg);
+    border-radius: 3px; overflow: hidden; margin-top: 4px;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 3px;
+    transition: width .3s;
+  }
+
+  .filter-bar {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .filter-btn {
+    padding: 5px 13px; border-radius: 20px;
+    border: 0.5px solid var(--border-mid);
+    background: var(--surface); color: var(--text-2);
+    font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .filter-btn.active {
+    background: var(--text); color: #fff;
+    border-color: var(--text);
+  }
+  .filter-btn:hover:not(.active) { background: var(--gray-bg); }
+
+  .empty-state {
+    text-align: center; padding: 28px 16px;
+    color: var(--text-3); font-size: 13px;
+    background: var(--surface);
+    border-radius: 10px; border: 0.5px solid var(--border);
+  }
+
+  .loading {
+    text-align: center; padding: 60px 20px;
+    color: var(--text-3); font-size: 13px;
+  }
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid var(--border-mid);
+    border-top-color: var(--text-2);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin-right: 8px; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .designer-tag {
+    font-size: 11px; color: var(--text-3);
+    background: var(--gray-bg); border-radius: 3px;
+    padding: 1px 6px;
+  }
+
+  .today-bar {
+    font-size: 11px; color: var(--text-3);
+    text-align: right; margin-bottom: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .card { grid-template-columns: 1fr; }
+    .card-right { flex-direction: row; align-items: center; justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">木介</div>
+    <div class="page-title">工程進度警報</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="meta" id="meta-text">資料來源：案件評量追蹤表 · 每次開啟即更新</div>
+    <button class="refresh-btn" onclick="loadData()">↻ 重新整理</button>
+  </div>
+</header>
+
+<main>
+  <div class="loading" id="loading-state">
+    <span class="spinner"></span>從 Google Sheets 載入資料中…
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="today-bar" id="today-bar"></div>
+
+    <div class="summary-grid" id="summary-grid"></div>
+
+    <div class="filter-bar" id="filter-bar"></div>
+
+    <div id="sections"></div>
+  </div>
+</main>
+
+<script>
+const SHEET_ID = '1Slhin4aVs02SN6YdaraPvMRN7rMQW2YcLqrC1UBXeck';
+const SHEET_NAME = encodeURIComponent('案件評量追蹤表');
+const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+
+const WARN_DAYS = 80;
+const OVERDUE_DAYS = 90;
+
+let allCases = [];
+let currentFilter = '全部';
+
+function today() {
+  const d = new Date();
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  const str = String(s).trim().replace(/\//g, '-');
+  const m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return null;
+  return new Date(+m[1], +m[2]-1, +m[3]);
+}
+
+function daysBetween(a, b) {
+  return Math.round((b - a) / 86400000);
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+async function loadData() {
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
+
+  try {
+    const res = await fetch(API_URL + '&rand=' + Date.now());
+    const text = await res.text();
+    const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+    parseSheet(json);
+  } catch(e) {
+    document.getElementById('loading-state').innerHTML =
+      '<div style="color:#A32D2D">⚠ 無法載入資料，請確認網路或 Sheets 權限。<br><small>' + e.message + '</small></div>';
+  }
+}
+
+function parseSheet(json) {
+  const rows = json.table.rows;
+  const cases = [];
+
+  for (const row of rows) {
+    if (!row.c) continue;
+    const cells = row.c.map(c => c ? (c.f || c.v || '') : '');
+
+    const col0 = String(cells[0] || '').trim();
+    const name = String(cells[1] || '').trim();
+    const status = String(cells[2] || '').trim();
+    const startRaw = cells[7];
+    const contractEndRaw = cells[8];
+
+    if (!name || name.length < 2) continue;
+    if (!status.includes('工程') && !status.includes('點交')) continue;
+    if (status.includes('已完成') && !status.includes('點交')) continue;
+
+    const isDesigner = /^[^\d]/.test(col0) && col0.length > 1 && !col0.includes('辦');
+    if (isDesigner) continue;
+
+    const designer = findDesigner(rows, row);
+    const startDate = parseDate(String(startRaw || '').replace(/Date\(|\)/g,'').replace(/,/g,'-'));
+    const contractEnd = parseDate(String(contractEndRaw || '').replace(/Date\(|\)/g,'').replace(/,/g,'-'));
+
+    if (!startDate) continue;
+
+    const tod = today();
+    const elapsed = daysBetween(startDate, tod);
+    const estimatedEnd = new Date(startDate.getTime() + OVERDUE_DAYS * 86400000);
+    const daysLeft = daysBetween(tod, estimatedEnd);
+    const useEnd = contractEnd || estimatedEnd;
+    const daysToContract = contractEnd ? daysBetween(tod, contractEnd) : null;
+    const progressPct = Math.min(100, Math.round(elapsed / OVERDUE_DAYS * 100));
+
+    let alertLevel = 'normal';
+    if (status.includes('點交')) {
+      alertLevel = 'handover';
+    } else if (elapsed > OVERDUE_DAYS) {
+      alertLevel = 'overdue';
+    } else if (elapsed > WARN_DAYS) {
+      alertLevel = 'warning';
+    } else if (contractEnd && daysToContract !== null && daysToContract < 0) {
+      alertLevel = 'overdue';
+    } else if (contractEnd && daysToContract !== null && daysToContract <= 14) {
+      alertLevel = 'warning';
+    }
+
+    cases.push({ name, status, designer, startDate, contractEnd, estimatedEnd, elapsed, daysLeft, progressPct, alertLevel, daysToContract });
+  }
+
+  allCases = cases;
+  render();
+}
+
+function findDesigner(rows, targetRow) {
+  const targetIdx = rows.indexOf(targetRow);
+  for (let i = targetIdx - 1; i >= 0; i--) {
+    const r = rows[i];
+    if (!r || !r.c) continue;
+    const col0 = String(r.c[0] ? (r.c[0].v || '') : '').trim();
+    const col1 = String(r.c[1] ? (r.c[1].v || '') : '').trim();
+    if (/^[一二三]辦$/.test(col0)) continue;
+    if (!col0 && col1 && col1.length > 1 && /[A-Za-z]/.test(col1)) {
+      return col1;
+    }
+  }
+  return '未分配';
+}
+
+function render() {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  const tod = today();
+  document.getElementById('today-bar').textContent =
+    `今日 ${tod.getFullYear()}/${tod.getMonth()+1}/${tod.getDate()}　基準工期：開工日 +${OVERDUE_DAYS} 日曆天`;
+
+  const overdue = allCases.filter(c => c.alertLevel === 'overdue');
+  const warning = allCases.filter(c => c.alertLevel === 'warning');
+  const handover = allCases.filter(c => c.alertLevel === 'handover');
+  const normal = allCases.filter(c => c.alertLevel === 'normal');
+
+  document.getElementById('summary-grid').innerHTML = `
+    <div class="summary-card red">
+      <div class="summary-label">超過基準工期</div>
+      <div class="summary-num">${overdue.length}</div>
+      <div class="summary-sub">已超過 ${OVERDUE_DAYS} 天</div>
+    </div>
+    <div class="summary-card amber">
+      <div class="summary-label">即將到期</div>
+      <div class="summary-num">${warning.length}</div>
+      <div class="summary-sub">進入警戒區間</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">點交驗收中</div>
+      <div class="summary-num">${handover.length}</div>
+      <div class="summary-sub">等待完工確認</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">進行中（正常）</div>
+      <div class="summary-num">${normal.length}</div>
+      <div class="summary-sub">共 ${allCases.length} 件施工中</div>
+    </div>
+  `;
+
+  const designers = ['全部', ...new Set(allCases.map(c => c.designer).filter(Boolean))];
+  document.getElementById('filter-bar').innerHTML = designers.map(d =>
+    `<button class="filter-btn${d === currentFilter ? ' active' : ''}" onclick="setFilter('${d}')">${d}</button>`
+  ).join('');
+
+  renderSections();
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === f);
+  });
+  renderSections();
+}
+
+function renderSections() {
+  const filtered = currentFilter === '全部' ? allCases : allCases.filter(c => c.designer === currentFilter);
+  const overdue = filtered.filter(c => c.alertLevel === 'overdue').sort((a,b) => b.elapsed - a.elapsed);
+  const warning = filtered.filter(c => c.alertLevel === 'warning').sort((a,b) => b.elapsed - a.elapsed);
+  const handover = filtered.filter(c => c.alertLevel === 'handover');
+  const normal = filtered.filter(c => c.alertLevel === 'normal').sort((a,b) => b.elapsed - a.elapsed);
+
+  let html = '';
+
+  if (overdue.length) {
+    html += section('超過基準工期', 'red', overdue, '已超過 ' + OVERDUE_DAYS + ' 天，需立即確認');
+  }
+  if (warning.length) {
+    html += section('即將到期警戒', 'amber', warning, '進入 ' + WARN_DAYS + '–' + OVERDUE_DAYS + ' 天警戒區間');
+  }
+  if (handover.length) {
+    html += section('點交驗收中', 'green', handover, '工程完成，待正式結案');
+  }
+  if (normal.length) {
+    html += section('施工進行中（正常）', 'blue', normal, '');
+  }
+  if (!filtered.length) {
+    html = '<div class="empty-state">此設計師目前無進行中工程案件</div>';
+  }
+
+  document.getElementById('sections').innerHTML = html;
+}
+
+function section(title, color, items, hint) {
+  const cards = items.map(c => cardHTML(c, color === 'red' || color === 'amber' ? color : '')).join('');
+  return `
+    <div class="section">
+      <div class="section-header">
+        <div class="section-dot ${color}"></div>
+        <div class="section-title">${title}</div>
+        <div class="section-count">${items.length} 件</div>
+        ${hint ? `<div style="font-size:11px;color:var(--text-3)">${hint}</div>` : ''}
+      </div>
+      <div class="card-list">${cards}</div>
+    </div>
+  `;
+}
+
+function cardHTML(c, accent) {
+  const elapsed = c.elapsed;
+  const pct = c.progressPct;
+  const barColor = accent === 'red' ? '#E24B4A' : accent === 'amber' ? '#BA7517' : '#378ADD';
+
+  let rightNum = '';
+  let rightLabel = '';
+  let badge = '';
+
+  if (c.alertLevel === 'overdue') {
+    const over = elapsed - OVERDUE_DAYS;
+    rightNum = `<div class="day-count red">+${over}</div>`;
+    rightLabel = `<div class="day-label">已超出天數</div>`;
+    badge = `<span class="badge red">超期</span>`;
+  } else if (c.alertLevel === 'warning') {
+    rightNum = `<div class="day-count amber">${elapsed}</div>`;
+    rightLabel = `<div class="day-label">已過天數</div>`;
+    badge = `<span class="badge amber">警戒</span>`;
+  } else if (c.alertLevel === 'handover') {
+    badge = `<span class="badge green">點交中</span>`;
+    rightNum = `<div class="day-count" style="color:var(--green-text)">${elapsed}</div>`;
+    rightLabel = `<div class="day-label">已過天數</div>`;
+  } else {
+    const left = OVERDUE_DAYS - elapsed;
+    rightNum = `<div class="day-count" style="color:var(--blue-text)">${left}</div>`;
+    rightLabel = `<div class="day-label">剩餘天數</div>`;
+    badge = left <= 14 ? `<span class="badge amber">14天內</span>` : `<span class="badge blue">正常</span>`;
+  }
+
+  const contractInfo = c.contractEnd
+    ? `<span>簽約完工 ${formatDate(c.contractEnd)}</span>`
+    : `<span>估算完工 ${formatDate(c.estimatedEnd)}</span>`;
+
+  return `
+    <div class="card ${accent}">
+      <div>
+        <div class="card-name">${c.name}</div>
+        <div class="card-meta">
+          <span>開工 ${formatDate(c.startDate)}</span>
+          ${contractInfo}
+          <span class="designer-tag">${c.designer}</span>
+        </div>
+      </div>
+      <div class="card-right">
+        ${badge}
+        ${rightNum}
+        ${rightLabel}
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+    </div>
+  `;
+}
+
+loadData();
+</script>
+</body>
+</html>
