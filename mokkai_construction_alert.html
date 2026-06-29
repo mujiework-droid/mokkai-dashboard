@@ -105,6 +105,7 @@
   .section-dot.amber { background: #BA7517; }
   .section-dot.green { background: #639922; }
   .section-dot.blue { background: #378ADD; }
+  .section-dot.gray { background: #A09F98; }
   .section-title { font-size: 13px; font-weight: 500; color: var(--text-2); flex: 1; }
   .section-count {
     font-size: 11px; color: var(--text-3);
@@ -244,9 +245,6 @@ const SHEET_ID = '1Slhin4aVs02SN6YdaraPvMRN7rMQW2YcLqrC1UBXeck';
 const SHEET_NAME = encodeURIComponent('案件評量追蹤表');
 const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
 
-const WARN_DAYS = 80;
-const OVERDUE_DAYS = 90;
-
 let allCases = [];
 let currentFilter = '全部';
 
@@ -317,26 +315,28 @@ function parseSheet(json) {
 
     const tod = today();
     const elapsed = daysBetween(startDate, tod);
-    const estimatedEnd = new Date(startDate.getTime() + OVERDUE_DAYS * 86400000);
-    const daysLeft = daysBetween(tod, estimatedEnd);
-    const useEnd = contractEnd || estimatedEnd;
-    const daysToContract = contractEnd ? daysBetween(tod, contractEnd) : null;
-    const progressPct = Math.min(100, Math.round(elapsed / OVERDUE_DAYS * 100));
 
-    let alertLevel = 'normal';
+    // 以簽約完工日為基準計算剩餘/超出天數
+    const daysToContract = contractEnd ? daysBetween(tod, contractEnd) : null;
+    // 進度條：有簽約完工日就用合約總天數，否則用開工天數顯示
+    const totalDays = contractEnd ? Math.max(1, daysBetween(startDate, contractEnd)) : 90;
+    const progressPct = Math.min(100, Math.round(elapsed / totalDays * 100));
+
+    // alertLevel 完全以簽約完工日為準
+    let alertLevel;
     if (status.includes('點交')) {
       alertLevel = 'handover';
-    } else if (elapsed > OVERDUE_DAYS) {
-      alertLevel = 'overdue';
-    } else if (elapsed > WARN_DAYS) {
-      alertLevel = 'warning';
-    } else if (contractEnd && daysToContract !== null && daysToContract < 0) {
-      alertLevel = 'overdue';
-    } else if (contractEnd && daysToContract !== null && daysToContract <= 14) {
-      alertLevel = 'warning';
+    } else if (!contractEnd) {
+      alertLevel = 'nodate'; // 無簽約完工日，不觸發警報
+    } else if (daysToContract < 0) {
+      alertLevel = 'overdue'; // 今天已超過簽約完工日
+    } else if (daysToContract <= 14) {
+      alertLevel = 'warning'; // 距離完工日 14 天內
+    } else {
+      alertLevel = 'normal';
     }
 
-    cases.push({ name, status, designer, startDate, contractEnd, estimatedEnd, elapsed, daysLeft, progressPct, alertLevel, daysToContract });
+    cases.push({ name, status, designer, startDate, contractEnd, elapsed, progressPct, alertLevel, daysToContract });
   }
 
   allCases = cases;
@@ -364,21 +364,22 @@ function render() {
 
   const tod = today();
   document.getElementById('today-bar').textContent =
-    `今日 ${tod.getFullYear()}/${tod.getMonth()+1}/${tod.getDate()}　基準工期：開工日 +${OVERDUE_DAYS} 日曆天`;
+    `今日 ${tod.getFullYear()}/${tod.getMonth()+1}/${tod.getDate()}　警報基準：簽約完工日`;
 
-  const overdue = allCases.filter(c => c.alertLevel === 'overdue');
-  const warning = allCases.filter(c => c.alertLevel === 'warning');
+  const overdue  = allCases.filter(c => c.alertLevel === 'overdue');
+  const warning  = allCases.filter(c => c.alertLevel === 'warning');
   const handover = allCases.filter(c => c.alertLevel === 'handover');
-  const normal = allCases.filter(c => c.alertLevel === 'normal');
+  const normal   = allCases.filter(c => c.alertLevel === 'normal');
+  const nodate   = allCases.filter(c => c.alertLevel === 'nodate');
 
   document.getElementById('summary-grid').innerHTML = `
     <div class="summary-card red" data-alert="overdue" onclick="jumpSection('overdue')">
-      <div class="summary-label">超過基準工期</div>
+      <div class="summary-label">超過簽約完工日</div>
       <div class="summary-num">${overdue.length}</div>
       <div class="summary-sub">點擊查看案件</div>
     </div>
     <div class="summary-card amber" data-alert="warning" onclick="jumpSection('warning')">
-      <div class="summary-label">即將到期</div>
+      <div class="summary-label">14 天內到期</div>
       <div class="summary-num">${warning.length}</div>
       <div class="summary-sub">點擊查看案件</div>
     </div>
@@ -412,28 +413,27 @@ function setFilter(f) {
 
 function renderSections() {
   const filtered = currentFilter === '全部' ? allCases : allCases.filter(c => c.designer === currentFilter);
-  const overdue = filtered.filter(c => c.alertLevel === 'overdue').sort((a,b) => b.elapsed - a.elapsed);
-  const warning = filtered.filter(c => c.alertLevel === 'warning').sort((a,b) => b.elapsed - a.elapsed);
+  const overdue  = filtered.filter(c => c.alertLevel === 'overdue').sort((a,b) => a.daysToContract - b.daysToContract);
+  const warning  = filtered.filter(c => c.alertLevel === 'warning').sort((a,b) => a.daysToContract - b.daysToContract);
   const handover = filtered.filter(c => c.alertLevel === 'handover');
-  const normal = filtered.filter(c => c.alertLevel === 'normal').sort((a,b) => b.elapsed - a.elapsed);
+  const normal   = filtered.filter(c => c.alertLevel === 'normal').sort((a,b) => a.daysToContract - b.daysToContract);
+  const nodate   = filtered.filter(c => c.alertLevel === 'nodate').sort((a,b) => b.elapsed - a.elapsed);
 
   let html = '';
-
   const show = id => !currentAlert || currentAlert === id;
 
-  if (show('overdue') && overdue.length) {
-    html += section('超過基準工期', 'red', overdue, '已超過 ' + OVERDUE_DAYS + ' 天，需立即確認', 'overdue');
-  }
-  if (show('warning') && warning.length) {
-    html += section('即將到期警戒', 'amber', warning, '進入 ' + WARN_DAYS + '–' + OVERDUE_DAYS + ' 天警戒區間', 'warning');
-  }
-  if (show('handover') && handover.length) {
+  if (show('overdue') && overdue.length)
+    html += section('超過簽約完工日', 'red', overdue, '需立即確認是否有違約風險', 'overdue');
+  if (show('warning') && warning.length)
+    html += section('14 天內即將到期', 'amber', warning, '請盡快確認工程進度', 'warning');
+  if (show('handover') && handover.length)
     html += section('點交驗收中', 'green', handover, '工程完成，待正式結案', 'handover');
-  }
-  if (show('normal') && normal.length) {
+  if (show('normal') && normal.length)
     html += section('施工進行中（正常）', 'blue', normal, '', 'normal');
-  }
-  if (!filtered.length || (!overdue.length && !warning.length && !handover.length && !normal.length)) {
+  if (show('nodate') && nodate.length)
+    html += section('未填簽約完工日', 'gray', nodate, '請補填合約完工日期以啟用警報', 'nodate');
+
+  if (!filtered.length) {
     html = '<div class="empty-state">此設計師目前無進行中工程案件</div>';
   } else if (currentAlert && !html) {
     html = '<div class="empty-state">此分類目前無案件</div>';
@@ -455,7 +455,9 @@ function jumpSection(id) {
 }
 
 function section(title, color, items, hint, id) {
-  const cards = items.map(c => cardHTML(c, color === 'red' || color === 'amber' ? color : '')).join('');
+  const accentMap = { red: 'red', amber: 'amber', gray: 'gray' };
+  const accent = accentMap[color] || '';
+  const cards = items.map(c => cardHTML(c, accent)).join('');
   return `
     <div class="section">
       <div class="section-header-row">
@@ -470,37 +472,37 @@ function section(title, color, items, hint, id) {
 }
 
 function cardHTML(c, accent) {
-  const elapsed = c.elapsed;
   const pct = c.progressPct;
-  const barColor = accent === 'red' ? '#E24B4A' : accent === 'amber' ? '#BA7517' : '#378ADD';
+  const barColor = accent === 'red' ? '#E24B4A' : accent === 'amber' ? '#BA7517' : accent === 'gray' ? '#A09F98' : '#378ADD';
 
-  let rightNum = '';
-  let rightLabel = '';
-  let badge = '';
+  let rightNum = '', rightLabel = '', badge = '';
 
   if (c.alertLevel === 'overdue') {
-    const over = elapsed - OVERDUE_DAYS;
+    const over = Math.abs(c.daysToContract);
     rightNum = `<div class="day-count red">+${over}</div>`;
-    rightLabel = `<div class="day-label">已超出天數</div>`;
+    rightLabel = `<div class="day-label">已超過完工日</div>`;
     badge = `<span class="badge red">超期</span>`;
   } else if (c.alertLevel === 'warning') {
-    rightNum = `<div class="day-count amber">${elapsed}</div>`;
-    rightLabel = `<div class="day-label">已過天數</div>`;
-    badge = `<span class="badge amber">警戒</span>`;
+    rightNum = `<div class="day-count amber">${c.daysToContract}</div>`;
+    rightLabel = `<div class="day-label">距完工日（天）</div>`;
+    badge = `<span class="badge amber">即將到期</span>`;
   } else if (c.alertLevel === 'handover') {
     badge = `<span class="badge green">點交中</span>`;
-    rightNum = `<div class="day-count" style="color:var(--green-text)">${elapsed}</div>`;
-    rightLabel = `<div class="day-label">已過天數</div>`;
+    rightNum = `<div class="day-count" style="color:var(--green-text)">${c.elapsed}</div>`;
+    rightLabel = `<div class="day-label">已施工天數</div>`;
+  } else if (c.alertLevel === 'nodate') {
+    badge = `<span class="badge gray">待補日期</span>`;
+    rightNum = `<div class="day-count" style="color:var(--gray-text)">${c.elapsed}</div>`;
+    rightLabel = `<div class="day-label">已施工天數</div>`;
   } else {
-    const left = OVERDUE_DAYS - elapsed;
-    rightNum = `<div class="day-count" style="color:var(--blue-text)">${left}</div>`;
-    rightLabel = `<div class="day-label">剩餘天數</div>`;
-    badge = left <= 14 ? `<span class="badge amber">14天內</span>` : `<span class="badge blue">正常</span>`;
+    rightNum = `<div class="day-count" style="color:var(--blue-text)">${c.daysToContract}</div>`;
+    rightLabel = `<div class="day-label">距完工日（天）</div>`;
+    badge = `<span class="badge blue">正常</span>`;
   }
 
   const contractInfo = c.contractEnd
     ? `<span>簽約完工 ${formatDate(c.contractEnd)}</span>`
-    : `<span>估算完工 ${formatDate(c.estimatedEnd)}</span>`;
+    : `<span style="color:var(--text-3)">未填簽約完工日</span>`;
 
   return `
     <div class="card ${accent}">
