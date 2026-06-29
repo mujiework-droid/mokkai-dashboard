@@ -71,7 +71,10 @@
     border-radius: 10px;
     border: 0.5px solid var(--border);
     padding: 14px 16px;
+    cursor: pointer;
+    transition: opacity .15s;
   }
+  .summary-card:hover { opacity: .85; }
   .summary-card.red { border-color: var(--red-border); background: var(--red-bg); }
   .summary-card.amber { border-color: var(--amber-border); background: var(--amber-bg); }
   .summary-label { font-size: 11px; color: var(--text-2); margin-bottom: 6px; line-height: 1.4; }
@@ -84,11 +87,23 @@
   .summary-card.red .summary-sub { color: var(--red-text); opacity: .6; }
   .summary-card.amber .summary-sub { color: var(--amber-text); opacity: .6; }
 
-  .section { margin-bottom: 28px; }
+  .section { margin-bottom: 12px; }
   .section-header {
     display: flex; align-items: center; gap: 8px;
-    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s;
   }
+  .section-header:hover { background: var(--gray-bg); }
+  .section-header.open { border-radius: 10px 10px 0 0; border-bottom-color: transparent; }
+  .section-header.red-header { background: var(--red-bg); border-color: var(--red-border); }
+  .section-header.red-header:hover { background: #f8dede; }
+  .section-header.amber-header { background: var(--amber-bg); border-color: var(--amber-border); }
+  .section-header.amber-header:hover { background: #f5e4c4; }
   .section-dot {
     width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
   }
@@ -96,26 +111,46 @@
   .section-dot.amber { background: #BA7517; }
   .section-dot.green { background: #639922; }
   .section-dot.blue { background: #378ADD; }
-  .section-title { font-size: 13px; font-weight: 500; color: var(--text-2); }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--text-2); flex: 1; }
+  .section-header.red-header .section-title { color: var(--red-text); }
+  .section-header.amber-header .section-title { color: var(--amber-text); }
   .section-count {
     font-size: 11px; color: var(--text-3);
     background: var(--gray-bg); border-radius: 20px;
     padding: 1px 8px;
   }
+  .section-chevron {
+    font-size: 11px; color: var(--text-3);
+    transition: transform .2s;
+    margin-left: 4px;
+  }
+  .section-chevron.open { transform: rotate(180deg); }
+  .section-hint { font-size: 11px; color: var(--text-3); }
 
-  .card-list { display: flex; flex-direction: column; gap: 8px; }
+  .card-list-wrap {
+    border: 0.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    display: none;
+    margin-bottom: 12px;
+  }
+  .card-list-wrap.open { display: block; }
+  .card-list-wrap.red-wrap { border-color: var(--red-border); }
+  .card-list-wrap.amber-wrap { border-color: var(--amber-border); }
+  .card-list { display: flex; flex-direction: column; gap: 0; }
   .card {
     background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
+    border-top: 0.5px solid var(--border);
     padding: 12px 14px;
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 6px 12px;
     align-items: start;
   }
-  .card.red { border-left: 3px solid #E24B4A; border-radius: 0 10px 10px 0; }
-  .card.amber { border-left: 3px solid #BA7517; border-radius: 0 10px 10px 0; }
+  .card:first-child { border-top: none; }
+  .card.red { border-left: 3px solid #E24B4A; }
+  .card.amber { border-left: 3px solid #BA7517; }
   .card-name { font-size: 14px; font-weight: 500; }
   .card-meta { font-size: 12px; color: var(--text-2); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 6px 14px; }
   .card-meta span { display: flex; align-items: center; gap: 3px; }
@@ -362,25 +397,25 @@ function render() {
   const normal = allCases.filter(c => c.alertLevel === 'normal');
 
   document.getElementById('summary-grid').innerHTML = `
-    <div class="summary-card red">
+    <div class="summary-card red" onclick="jumpSection('overdue')">
       <div class="summary-label">超過基準工期</div>
       <div class="summary-num">${overdue.length}</div>
-      <div class="summary-sub">已超過 ${OVERDUE_DAYS} 天</div>
+      <div class="summary-sub">已超過 ${OVERDUE_DAYS} 天 ↓</div>
     </div>
-    <div class="summary-card amber">
+    <div class="summary-card amber" onclick="jumpSection('warning')">
       <div class="summary-label">即將到期</div>
       <div class="summary-num">${warning.length}</div>
-      <div class="summary-sub">進入警戒區間</div>
+      <div class="summary-sub">進入警戒區間 ↓</div>
     </div>
-    <div class="summary-card">
+    <div class="summary-card" onclick="jumpSection('handover')">
       <div class="summary-label">點交驗收中</div>
       <div class="summary-num">${handover.length}</div>
-      <div class="summary-sub">等待完工確認</div>
+      <div class="summary-sub">等待完工確認 ↓</div>
     </div>
-    <div class="summary-card">
+    <div class="summary-card" onclick="jumpSection('normal')">
       <div class="summary-label">進行中（正常）</div>
       <div class="summary-num">${normal.length}</div>
-      <div class="summary-sub">共 ${allCases.length} 件施工中</div>
+      <div class="summary-sub">共 ${allCases.length} 件施工中 ↓</div>
     </div>
   `;
 
@@ -410,16 +445,16 @@ function renderSections() {
   let html = '';
 
   if (overdue.length) {
-    html += section('超過基準工期', 'red', overdue, '已超過 ' + OVERDUE_DAYS + ' 天，需立即確認');
+    html += section('超過基準工期', 'red', overdue, '已超過 ' + OVERDUE_DAYS + ' 天，需立即確認', 'overdue', true);
   }
   if (warning.length) {
-    html += section('即將到期警戒', 'amber', warning, '進入 ' + WARN_DAYS + '–' + OVERDUE_DAYS + ' 天警戒區間');
+    html += section('即將到期警戒', 'amber', warning, '進入 ' + WARN_DAYS + '–' + OVERDUE_DAYS + ' 天警戒區間', 'warning', false);
   }
   if (handover.length) {
-    html += section('點交驗收中', 'green', handover, '工程完成，待正式結案');
+    html += section('點交驗收中', 'green', handover, '工程完成，待正式結案', 'handover', false);
   }
   if (normal.length) {
-    html += section('施工進行中（正常）', 'blue', normal, '');
+    html += section('施工進行中（正常）', 'blue', normal, '', 'normal', false);
   }
   if (!filtered.length) {
     html = '<div class="empty-state">此設計師目前無進行中工程案件</div>';
@@ -428,16 +463,43 @@ function renderSections() {
   document.getElementById('sections').innerHTML = html;
 }
 
-function section(title, color, items, hint) {
+function jumpSection(id) {
+  const el = document.getElementById('section-' + id);
+  if (!el) return;
+  // 展開
+  const wrap = el.nextElementSibling;
+  if (wrap && !wrap.classList.contains('open')) {
+    el.classList.add('open');
+    wrap.classList.add('open');
+    el.querySelector('.section-chevron').classList.add('open');
+  }
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleSection(id) {
+  const header = document.getElementById('section-' + id);
+  const wrap = header.nextElementSibling;
+  const chevron = header.querySelector('.section-chevron');
+  const isOpen = wrap.classList.contains('open');
+  wrap.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+}
+
+function section(title, color, items, hint, id, defaultOpen) {
   const cards = items.map(c => cardHTML(c, color === 'red' || color === 'amber' ? color : '')).join('');
+  const headerClass = color === 'red' ? 'red-header' : color === 'amber' ? 'amber-header' : '';
+  const wrapClass = color === 'red' ? 'red-wrap' : color === 'amber' ? 'amber-wrap' : '';
+  const isOpen = defaultOpen;
   return `
-    <div class="section">
-      <div class="section-header">
-        <div class="section-dot ${color}"></div>
-        <div class="section-title">${title}</div>
-        <div class="section-count">${items.length} 件</div>
-        ${hint ? `<div style="font-size:11px;color:var(--text-3)">${hint}</div>` : ''}
-      </div>
+    <div id="section-${id}" class="section-header ${headerClass}${isOpen?' open':''}" onclick="toggleSection('${id}')">
+      <div class="section-dot ${color}"></div>
+      <div class="section-title">${title}</div>
+      <div class="section-count">${items.length} 件</div>
+      ${hint ? `<div class="section-hint">${hint}</div>` : ''}
+      <div class="section-chevron${isOpen?' open':''}">▾</div>
+    </div>
+    <div class="card-list-wrap ${wrapClass}${isOpen?' open':''}">
       <div class="card-list">${cards}</div>
     </div>
   `;
